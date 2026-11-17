@@ -200,7 +200,7 @@ meta:
   # 默认文章作者（可在front-matter中覆盖）
   author:
     avatar:
-    name: 胡朗
+    name: HuLang
     url: /
   # 文章创建日期
   date:
@@ -513,7 +513,7 @@ plugins:
   # APlayer is only available in mainland China.
   # APlayer config: https://github.com/metowolf/MetingJS
   aplayer:
-    enable: true
+    enable: false
     js:
       - https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js
       - https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js
