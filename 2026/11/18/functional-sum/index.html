@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha256-4Lad8m4ZWW1Lgb9+sMVLYEfnIh7BjV1NQMEe79Pviks=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hulang1024.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="1+2+..10代表了一类问题。在面向过程语言中，通常这样来计算1+2+..10： 123456789101112&#x2F;&#x2F; forint acc &#x3D; 0;for (int i &#x3D; 1; i &lt;&#x3D; 10; i++) &amp;#123;    acc +&#x3D; i;&amp;#125;&#x2F;&#x2F; whileint acc &#x3D; 0;int i &#x3D; 1;while (i &lt;&#x3D; 10) &amp;#123;    acc +&#x3D; i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在clojure中用函数式方法计算1+2+..10">
+<meta property="og:url" content="https://hulang1024.github.io/2026/11/18/functional-sum/">
+<meta property="og:site_name" content="hulang1024">
+<meta property="og:description" content="1+2+..10代表了一类问题。在面向过程语言中，通常这样来计算1+2+..10： 123456789101112&#x2F;&#x2F; forint acc &#x3D; 0;for (int i &#x3D; 1; i &lt;&#x3D; 10; i++) &amp;#123;    acc +&#x3D; i;&amp;#125;&#x2F;&#x2F; whileint acc &#x3D; 0;int i &#x3D; 1;while (i &lt;&#x3D; 10) &amp;#123;    acc +&#x3D; i">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hulang1024.github.io/2026/11/18/functional-sum/sicp-iteration.png">
+<meta property="article:published_time" content="2026-11-18T10:00:47.660Z">
+<meta property="article:modified_time" content="2026-11-18T10:00:47.660Z">
+<meta property="article:author" content="HuLang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hulang1024.github.io/2026/11/18/functional-sum/sicp-iteration.png">
+
+
+<link rel="canonical" href="https://hulang1024.github.io/2026/11/18/functional-sum/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hulang1024.github.io/2026/11/18/functional-sum/","path":"2026/11/18/functional-sum/","title":"在clojure中用函数式方法计算1+2+..10"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>在clojure中用函数式方法计算1+2+..10 | hulang1024</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-search popup-trigger" aria-label="搜索" role="button">
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">hulang1024</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-toggle" aria-label="切换导航栏" role="button">
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%92%E5%BD%92"><span class="nav-number">1.</span> <span class="nav-text">递归</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loop"><span class="nav-number">2.</span> <span class="nav-text">loop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loop-%E9%9B%86%E5%90%88"><span class="nav-number">3.</span> <span class="nav-text">loop 集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduce"><span class="nav-number">4.</span> <span class="nav-text">reduce</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HuLang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/18/functional-sum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HuLang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hulang1024">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="在clojure中用函数式方法计算1+2+..10 | hulang1024">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在clojure中用函数式方法计算1+2+..10
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-18 18:00:47" itemprop="dateCreated datePublished" datetime="2026-11-18T18:00:47+08:00">2026-11-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>1+2+..10代表了一类问题。在面向过程语言中，通常这样来计算1+2+..10：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// for</span></span><br><span class="line"><span class="type">int</span> acc = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">    acc += i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// while</span></span><br><span class="line"><span class="type">int</span> acc = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span> (i &lt;= <span class="number">10</span>) &#123;</span><br><span class="line">    acc += i;</span><br><span class="line">    i += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行流程是，首先执行初始化<code>acc = 0, i = 1</code>，然后检查迭代/循环结束条件<code>i &lt;= 10</code>，如果没有结束，每次循环都会执行不变式<code>acc += i; i += 1</code>，直到<code>i &gt; 10</code>。<br>在每次循环中，我们用<code>i+1</code>和<code>acc+i</code>计算出一个新值再通过赋值去修改<code>i</code>和<code>acc</code>。<br>这里的<code>i</code>和<code>acc</code>就像在草稿纸上的两个数，我们先拿到纸上“当前”<code>acc</code>和<code>i</code>的值，然后计算新的值，再擦除旧值，把新的数写上去。</p>
+<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">sum</span> [acc i]</span><br><span class="line">  (<span class="name">println</span> `(<span class="name">sum</span> ~acc ~i))</span><br><span class="line">  (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">&lt;=</span></span> i <span class="number">10</span>)</span><br><span class="line">    (<span class="name"><span class="built_in">recur</span></span> (<span class="name"><span class="built_in">+</span></span> acc i) (<span class="name"><span class="built_in">inc</span></span> i))</span><br><span class="line">    acc))</span><br><span class="line">(<span class="name">sum</span> <span class="number">0</span> <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>我们定义了一个函数<code>sum</code>，可以被复用（在这里是被自身调用），在函数体中，<code>recur</code>关键字等同于<code>sum</code>（就像对象方法中的<code>this</code>）。<br>同样，我们定义了一个不变式<code>(if ...)</code>，在<code>(&lt;= i 10)</code>为真时，则执行调用<code>sum</code>，于是形成了循环的效果。如果<code>i</code>大于<code>10</code>，将直接返回<code>acc</code>的值并不再调用<code>sum</code>，则循环结束。<br>初始化的地方是在第一次调用<code>(sum 0 1)</code>，它让<code>acc=0,i=1</code>。在每次迭代中，我们计算出新的<code>acc</code>和<code>i</code>的值，但这里我们这里没有去“修改”变量的值。<br>而是就像第一次调用<code>sum</code>那样，进行一次新的调用：<code>(sum 1 2)</code>，来初始化一次局部变量<code>acc</code>和<code>i</code>，后续不会修改它们。<br>对于上面描述的这个过程，可以想象有10张纸，我们不会擦除每一张纸上的<code>acc</code>和<code>i</code>旁边写着的数，而是在新的纸上写下新的<code>acc</code>和<code>i</code>的数。（实际上，尾递归优化会复用旧的纸，但不妨碍我们进行那样的推理）<br>注意到sum函数中有一行<code>(println `(sum ~acc ~i))</code>，<code>(sum 0 1)</code>执行结果如下：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">sum</span> <span class="number">0</span>  <span class="number">1</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">1</span>  <span class="number">2</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">3</span>  <span class="number">3</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">6</span>  <span class="number">4</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">10</span> <span class="number">5</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">15</span> <span class="number">6</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">21</span> <span class="number">7</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">28</span> <span class="number">8</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">36</span> <span class="number">9</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">45</span> <span class="number">10</span>)</span><br><span class="line">(<span class="name">sum</span> <span class="number">55</span> <span class="number">11</span>)</span><br><span class="line"><span class="number">55</span></span><br></pre></td></tr></table></figure>
+
+<p>对于这类迭代计算过程，在SICP课程中，是用一个叫<code>add</code>的函数来解释的，在计算的方式上，它实际上与我们的<code>sum</code>做的事情是相同的：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">add</span> [x y]</span><br><span class="line"> (<span class="name">println</span> `(<span class="name">add</span> ~x ~y))</span><br><span class="line">  (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">=</span></span> x <span class="number">0</span>)</span><br><span class="line">    y</span><br><span class="line">    (<span class="name"><span class="built_in">recur</span></span> (<span class="name"><span class="built_in">dec</span></span> x) (<span class="name"><span class="built_in">inc</span></span> y))))</span><br><span class="line">(<span class="name">add</span> <span class="number">3</span> <span class="number">4</span>)</span><br></pre></td></tr></table></figure>
+<img src="/2026/11/18/functional-sum/sicp-iteration.png" width="50%" title="迭代">
+
+<p><code>(add 3 4)</code>执行结果如下：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">add</span> <span class="number">3</span> <span class="number">4</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">2</span> <span class="number">5</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">1</span> <span class="number">6</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">0</span> <span class="number">7</span>)</span><br><span class="line"><span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="loop"><a href="#loop" class="headerlink" title="loop"></a>loop</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name"><span class="built_in">loop</span></span> [acc <span class="number">0</span> i <span class="number">1</span>]</span><br><span class="line"> (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">&lt;=</span></span> i <span class="number">10</span>)</span><br><span class="line">  (<span class="name"><span class="built_in">recur</span></span> (<span class="name"><span class="built_in">+</span></span> acc i) (<span class="name"><span class="built_in">inc</span></span> i))</span><br><span class="line">  acc))</span><br></pre></td></tr></table></figure>
+<p>loop 是上面的<code>sum</code>的简化写法。<code>(sum 0 1)</code>和定义参数放在一起写变成了<code>[acc 0 i 1]</code>。</p>
+<h2 id="loop-集合"><a href="#loop-集合" class="headerlink" title="loop 集合"></a>loop 集合</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name"><span class="built_in">loop</span></span> [acc <span class="number">0</span> i (<span class="name"><span class="built_in">list</span></span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">10</span>)]</span><br><span class="line"> (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">not</span></span> (<span class="name"><span class="built_in">empty?</span></span> i))</span><br><span class="line">  (<span class="name"><span class="built_in">recur</span></span> (<span class="name"><span class="built_in">+</span></span> acc (<span class="name"><span class="built_in">first</span></span> i)) (<span class="name"><span class="built_in">rest</span></span> i))</span><br><span class="line">  acc))</span><br></pre></td></tr></table></figure>
+<p>我们这里只是将<code>i</code>的历史值序列替换成了集合。</p>
+<h2 id="reduce"><a href="#reduce" class="headerlink" title="reduce"></a>reduce</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name"><span class="built_in">reduce</span></span> + (<span class="name"><span class="built_in">range</span></span> <span class="number">1</span> <span class="number">11</span>))</span><br></pre></td></tr></table></figure>
+<p>就对于本问题的类似问题而言，不需要写模板代码，而是通过调用库函数<code>reduce</code>，<code>reduce</code>抽象了<code>loop</code>、遍历集合，初始化、不变式。需要填空reduce参数即可，只需要极少的代码。</p>
+<p>至此为止，我们消除了<code>for</code>、<code>while</code>、变量<code>acc</code>和<code>i</code>，和对它们的<em>mutation</em>。<br>这样做的好处是，避免关注繁多细节，从而避免犯错的机会。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/11/18/why-do-i-use-clojure/" rel="prev" title="我为什么使用Clojure">
+                  <i class="fa fa-angle-left"></i> 我为什么使用Clojure
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">HuLang</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
