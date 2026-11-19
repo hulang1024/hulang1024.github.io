@@ -15,7 +15,7 @@ Clojure基于**JVM**，Clojure的兄弟ClojureScript，则可以编译为**JavaS
 
 **丰富的数据集合类型**。clj有着丰富的数据集合类型，而不用重复发明，减少了社区方案分裂带来的麻烦。有：list、vector、set、map等。与scheme不同，clj多了vector、set和map，它们通常用来表示应用领域数据模型，list则通常只用来表示语法结构，来供宏操作。
 
-**REPL**。完善的REPL工作流，修改代码后不用重启等待，在频繁修改时，能节省很多时间。
+**REPL**。REPL是Clojure社区交互式、探索式开发的核心工具。
 
 还有其他好处，例如为并发设计，更多信息推荐你到官网中了解。
 clj官网：https://clojure.org/about/rationale
