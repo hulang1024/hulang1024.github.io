@@ -126,7 +126,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -153,7 +153,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/19/why-do-i-use-clojure/">
+    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/24/bubble-sort/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -171,7 +171,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/19/why-do-i-use-clojure/" class="post-title-link" itemprop="url">我为什么使用Clojure</a>
+          <a href="/2026/11/24/bubble-sort/" class="post-title-link" itemprop="url">冒泡排序算法的函数式实现</a>
         </h2>
 
         <div class="post-meta-container">
@@ -182,7 +182,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2026-11-19 20:30:28" itemprop="dateCreated datePublished" datetime="2026-11-19T20:30:28+08:00">2026-11-19</time>
+      <time title="创建时间：2026-11-24 21:11:54" itemprop="dateCreated datePublished" datetime="2026-11-24T21:11:54+08:00">2026-11-24</time>
     </span>
 
   
@@ -195,15 +195,24 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>它是<strong>Lisp</strong>。Clojure是一种实用的Lisp方言，对于已经用过Scheme，Racket等Lisp的人来说，它是一个可以尝试的选项。</p>
-<p>Clojure基于<strong>JVM</strong>，Clojure的兄弟ClojureScript，则可以编译为<strong>JavaScript</strong>。两者分别利用Java和JavaScript<strong>生态</strong>，不必担心其语言小众生态薄弱，你可以调用很多库，利用很多工具。两者(以后简称clj)语言核心相同，对于熟悉Java和JavaScript的人来说，它值得去尝试。</p>
-<p><strong>函数式</strong>语言。clj与Java和JavaScript等语言不同的是，它是一个函数式语言，因为它的默认选项是：数据结构默认不可变、有一个完善的函数式核心标准库等。引导你在这个框架下思考问题与解决问题，因此它是一个训练场，通过它学习到真正的函数式范式。在这之前，我仅仅把Scheme和Racket当成有着简洁语法的Lisp语言，去编写过程式和面向对象结构的程序。</p>
-<p><strong>性能</strong>。clj实现了“持久化数据结构”，通过共享结构，使得“修改”也很高效。</p>
-<p><strong>实用</strong>主义。与Haskell相比，在函数式这点它不太纯粹，为了实用性而妥协，实用性也是我选择它的原因之一。</p>
-<p><strong>语法简洁</strong>。跟所有Lisp方言一样，它的语法特别简洁，写出的程序噪音特别少，clj学习起来也尤其简单。</p>
-<p><strong>丰富的数据集合类型</strong>。clj有着丰富的数据集合类型，而不用重复发明，减少了社区方案分裂带来的麻烦。有：list、vector、set、map等。与scheme不同，clj多了vector、set和map，它们通常用来表示应用领域数据模型，list则通常只用来表示语法结构，来供宏操作。</p>
-<p><strong>REPL</strong>。REPL是Clojure社区交互式、探索式开发的核心工具。</p>
-<p>还有其他好处，例如为并发设计，更多信息推荐你到官网中了解。<br>clj官网：<a target="_blank" rel="noopener" href="https://clojure.org/about/rationale">https://clojure.org/about/rationale</a></p>
+          <p>如何实现冒泡排序算法？如何用函数式范式来实现。最重要的不是这个简单算法本身，而在于思考这类问题带来的收获。</p>
+<h2 id="函数式"><a href="#函数式" class="headerlink" title="函数式"></a>函数式</h2><p>在仔细回忆冒泡算法的基本过程之后，我有信心写出一个过程式的命令式的程序：一个双层循环，在内层循环中将较大的数到移到最右边（假如是从小到大）。<br>但既然正在学习函数式，如何用函数式的视角来解？对于我来说，使用函数式，意味着一种不同的思维，不再通过去修改状态的方式来达成预期结果，而是直接想象一个结果。<br>通过观察命令式版本的双层循环，我们可以发现，它是为了构造一个循环（废话）：生成一个<code>j</code>的序列，然后用这个<code>j</code>去遍历数组，更改数组。也就是说，循环在这里的作用有两个：生成<code>j</code>序列，原地更改数组。    </p>
+<p>我们看如何生成<code>j</code>序列。</p>
+<h2 id="生成遍历索引序列"><a href="#生成遍历索引序列" class="headerlink" title="生成遍历索引序列"></a>生成遍历索引序列</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">bubble-seq</span> [n]</span><br><span class="line">  (<span class="name"><span class="built_in">for</span></span> [i (<span class="name"><span class="built_in">range</span></span> (<span class="name"><span class="built_in">dec</span></span> n))</span><br><span class="line">        j (<span class="name"><span class="built_in">range</span></span> (<span class="name"><span class="built_in">-</span></span> n i <span class="number">1</span>))]</span><br><span class="line">    j))</span><br></pre></td></tr></table></figure>
+<p>这里<code>n</code>代表要排序的序列或数组的长度。我们测试一下</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">def</span> <span class="title">xs</span> (<span class="name"><span class="built_in">range</span></span> <span class="number">7</span> <span class="number">0</span> <span class="number">-1</span>)) <span class="comment">; 通过range生成一个测试数组</span></span><br><span class="line">xs <span class="comment">; =&gt; (7 6 5 4 3 2 1)</span></span><br><span class="line">(<span class="name">bubble-seq</span> xs) <span class="comment">; =&gt; (0 1 2 3 4 5 0 1 2 3 4 0 1 2 3 0 1 2 0 1 0)</span></span><br></pre></td></tr></table></figure>
+<p>这样我们便得到了一个序列，这个序列是我们将用来比较交换数组的索引组成的序列。</p>
+<h2 id="交换数组中两个数"><a href="#交换数组中两个数" class="headerlink" title="交换数组中两个数"></a>交换数组中两个数</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">swap-elem</span> [xs j k]</span><br><span class="line">  (<span class="name"><span class="built_in">-&gt;</span></span> xs</span><br><span class="line">      (<span class="name"><span class="built_in">assoc</span></span> j (<span class="name">xs</span> k))</span><br><span class="line">      (<span class="name"><span class="built_in">assoc</span></span> k (<span class="name">xs</span> j))))</span><br></pre></td></tr></table></figure>
+<p>很简单，有意思而且值得注意的是，这里我们没有中间变量，因为在命令式程序中，赋值的过程中会修改数组中的元素，但这里我们没有覆盖原数组，而是会产生新的数组，<code>xs</code>始终引用的是原参数数组。</p>
+<h2 id="最终整合-reduce"><a href="#最终整合-reduce" class="headerlink" title="最终整合 reduce"></a>最终整合 reduce</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">bubble-sort</span> [xs]</span><br><span class="line">  (<span class="name"><span class="built_in">reduce</span></span> (<span class="name"><span class="built_in">fn</span></span> [xs j]</span><br><span class="line">            (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">&gt;</span></span> (<span class="name">xs</span> j) (<span class="name">xs</span> (<span class="name"><span class="built_in">inc</span></span> j)))</span><br><span class="line">              (<span class="name">swap-elem</span> xs j (<span class="name"><span class="built_in">inc</span></span> j))</span><br><span class="line">              xs))</span><br><span class="line">          xs</span><br><span class="line">          (<span class="name">bubble-seq</span> (<span class="name"><span class="built_in">count</span></span> xs))))</span><br></pre></td></tr></table></figure>
+<p>最后我们用reduce来描述算法的核心过程：一个循环，每次循环我们取<code>bubble-seq</code>的每一项，去比较元素大小，并交换，即产生一个新的数组或保持，重复<code>(count (bubble-seq xs))</code>次，得到最后的数组。</p>
+<p>测试：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">bubble-sort</span> []) <span class="comment">; =&gt; []</span></span><br><span class="line">(<span class="name">bubble-sort</span> [<span class="number">1</span>]) <span class="comment">; =&gt; [1]</span></span><br><span class="line">(<span class="name">bubble-sort</span> [<span class="number">3</span> <span class="number">2</span> <span class="number">1</span>]) <span class="comment">; =&gt; [3 2 1]</span></span><br><span class="line">(<span class="name">bubble-sort</span> [<span class="number">3</span> <span class="number">2</span> <span class="number">8</span> <span class="number">12</span> <span class="number">76</span> <span class="number">1</span> <span class="number">3</span> <span class="number">5</span> <span class="number">69</span> <span class="number">88</span>]) <span class="comment">; =&gt; [1 2 3 3 5 8 12 69 76 88]</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="最初的版本"><a href="#最初的版本" class="headerlink" title="最初的版本"></a>最初的版本</h3><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">bubble-sort</span> [cmp xs]</span><br><span class="line">  (<span class="name"><span class="built_in">reduce</span></span> (<span class="name"><span class="built_in">fn</span></span> [xs j]</span><br><span class="line">            (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">&gt;</span></span> (<span class="name">cmp</span> (<span class="name">xs</span> j) (<span class="name">xs</span> (<span class="name"><span class="built_in">inc</span></span> j))) <span class="number">0</span>)</span><br><span class="line">              (<span class="name"><span class="built_in">-&gt;</span></span> (<span class="name"><span class="built_in">assoc</span></span> xs (<span class="name"><span class="built_in">inc</span></span> j) (<span class="name">xs</span> j))</span><br><span class="line">                  (<span class="name"><span class="built_in">assoc</span></span> j (<span class="name">xs</span> (<span class="name"><span class="built_in">inc</span></span> j))))</span><br><span class="line">              xs))</span><br><span class="line">          xs</span><br><span class="line">          (<span class="name"><span class="built_in">for</span></span> [i (<span class="name"><span class="built_in">range</span></span> (<span class="name"><span class="built_in">dec</span></span> (<span class="name"><span class="built_in">count</span></span> xs)))</span><br><span class="line">                j (<span class="name"><span class="built_in">range</span></span> (<span class="name"><span class="built_in">-</span></span> (<span class="name"><span class="built_in">count</span></span> xs) i <span class="number">1</span>))]</span><br><span class="line">            j)))</span><br></pre></td></tr></table></figure>
+<p>这实际上不是最终版本，而是最初版本，并且增加了参数<code>cmp</code>。测试：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">bubble-sort</span> - [<span class="number">3</span> <span class="number">2</span> <span class="number">8</span> <span class="number">12</span> <span class="number">76</span> <span class="number">1</span> <span class="number">3</span> <span class="number">5</span> <span class="number">690</span> <span class="number">88</span>]) <span class="comment">; =&gt; [1 2 3 3 5 8 12 76 88 690]</span></span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -230,7 +239,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/19/functional-sum/">
+    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/24/functional-sum/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -248,7 +257,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/19/functional-sum/" class="post-title-link" itemprop="url">在clojure中用函数式方法计算1+2+..10</a>
+          <a href="/2026/11/24/functional-sum/" class="post-title-link" itemprop="url">在clojure中用函数式方法计算1+2+..10</a>
         </h2>
 
         <div class="post-meta-container">
@@ -259,7 +268,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2026-11-19 20:29:52" itemprop="dateCreated datePublished" datetime="2026-11-19T20:29:52+08:00">2026-11-19</time>
+      <time title="创建时间：2026-11-24 21:11:54" itemprop="dateCreated datePublished" datetime="2026-11-24T21:11:54+08:00">2026-11-24</time>
     </span>
 
   
@@ -281,7 +290,7 @@
 
 <p>对于这类迭代计算过程，在SICP课程中，是用一个叫<code>add</code>的函数来解释的，在计算的方式上，它实际上与我们的<code>sum</code>做的事情是相同的：</p>
 <figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">defn</span> <span class="title">add</span> [x y]</span><br><span class="line"> (<span class="name">println</span> `(<span class="name">add</span> ~x ~y))</span><br><span class="line">  (<span class="name"><span class="built_in">if</span></span> (<span class="name"><span class="built_in">=</span></span> x <span class="number">0</span>)</span><br><span class="line">    y</span><br><span class="line">    (<span class="name"><span class="built_in">recur</span></span> (<span class="name"><span class="built_in">dec</span></span> x) (<span class="name"><span class="built_in">inc</span></span> y))))</span><br><span class="line">(<span class="name">add</span> <span class="number">3</span> <span class="number">4</span>)</span><br></pre></td></tr></table></figure>
-<img src="/2026/11/19/functional-sum/sicp-iteration.png" width="50%" title="迭代">
+<img src="/2026/11/24/functional-sum/sicp-iteration.png" width="50%" title="迭代">
 
 <p><code>(add 3 4)</code>执行结果如下：</p>
 <figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">add</span> <span class="number">3</span> <span class="number">4</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">2</span> <span class="number">5</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">1</span> <span class="number">6</span>)</span><br><span class="line">(<span class="name">add</span> <span class="number">0</span> <span class="number">7</span>)</span><br><span class="line"><span class="number">7</span></span><br></pre></td></tr></table></figure>
@@ -293,6 +302,83 @@
 <h2 id="reduce"><a href="#reduce" class="headerlink" title="reduce"></a>reduce</h2><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name"><span class="built_in">reduce</span></span> + (<span class="name"><span class="built_in">range</span></span> <span class="number">1</span> <span class="number">11</span>))</span><br></pre></td></tr></table></figure>
 <p>就对于本问题的类似问题而言，不需要写模板代码，而是通过调用库函数<code>reduce</code>，<code>reduce</code>抽象了<code>loop</code>、遍历集合，初始化、不变式。需要填空reduce参数即可，只需要极少的代码。</p>
 <p>至此为止，我们消除了<code>for</code>、<code>while</code>、变量<code>acc</code>和<code>i</code>，和对它们的<em>mutation</em>。<br>这样做的好处是，避免关注繁多细节，从而避免犯错的机会。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hulang1024.github.io/2026/11/24/why-do-i-use-clojure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HuLang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hulang1024">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | hulang1024">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/11/24/why-do-i-use-clojure/" class="post-title-link" itemprop="url">我为什么使用Clojure</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-24 21:11:54" itemprop="dateCreated datePublished" datetime="2026-11-24T21:11:54+08:00">2026-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>它是<strong>Lisp</strong>。Clojure是一种实用的Lisp方言，对于已经用过Scheme，Racket等Lisp的人来说，它是一个可以尝试的选项。</p>
+<p>Clojure基于<strong>JVM</strong>，Clojure的兄弟ClojureScript，则可以编译为<strong>JavaScript</strong>。两者分别利用Java和JavaScript<strong>生态</strong>，不必担心其语言小众生态薄弱，你可以调用很多库，利用很多工具。两者(以后简称clj)语言核心相同，对于熟悉Java和JavaScript的人来说，它值得去尝试。</p>
+<p><strong>函数式</strong>语言。clj与Java和JavaScript等语言不同的是，它是一个函数式语言，因为它的默认选项是：数据结构默认不可变、有一个完善的函数式核心标准库等。引导你在这个框架下思考问题与解决问题，因此它是一个训练场，通过它学习到真正的函数式范式。在这之前，我仅仅把Scheme和Racket当成有着简洁语法的Lisp语言，去编写过程式和面向对象结构的程序。</p>
+<p><strong>性能</strong>。clj实现了“持久化数据结构”，通过共享结构，使得“修改”也很高效。</p>
+<p><strong>实用</strong>主义。与Haskell相比，在函数式这点它不太纯粹，为了实用性而妥协，实用性也是我选择它的原因之一。</p>
+<p><strong>语法简洁</strong>。跟所有Lisp方言一样，它的语法特别简洁，写出的程序噪音特别少，clj学习起来也尤其简单。</p>
+<p><strong>丰富的数据集合类型</strong>。clj有着丰富的数据集合类型，而不用重复发明，减少了社区方案分裂带来的麻烦。有：list、vector、set、map等。与scheme不同，clj多了vector、set和map，它们通常用来表示应用领域数据模型，list则通常只用来表示语法结构，来供宏操作。</p>
+<p><strong>REPL</strong>。REPL是Clojure社区交互式、探索式开发的核心工具。</p>
+<p>还有其他好处，例如为并发设计，更多信息推荐你到官网中了解。<br>clj官网：<a target="_blank" rel="noopener" href="https://clojure.org/about/rationale">https://clojure.org/about/rationale</a></p>
 
       
     </div>
